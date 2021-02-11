@@ -1,14 +1,19 @@
-# Release 0.0.1
+# Release 0.1.0
 ---
 
 ## Introduction
 This program is used to simulate the board role-playing game *evolution*.
-This release has some unfixed bugs, and I'm working on fixing them. So **don't** open pull request or issue.
+This release **is not** fully developed, but is will be complete.
 
 ## File Explanation
-### attack_and_defense.py 
+### components.py 
 ```
-Functions about attack, eat and defense.
+Base class for evolution's components.
+```
+
+### constants.py
+```
+Include constants(plugins) that evolution need
 ```
 
 ### evolution.py
@@ -16,17 +21,17 @@ Functions about attack, eat and defense.
 The entrance of the game.
 ```
 
-### output.py
+### io_utils.py
 ```
 Functions are used to do output in the game.
 ```
 
-### save_game.py
+### game_saver.py
 ```
-Blank file. But will be a game saver in the future.
+Save game in a JSON file.
 ```
 
-### utils.py 
+### game_utils.py 
 ```
-All of the utils.
+Include some function that can compose a complete game.
 ```
