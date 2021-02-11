@@ -2,7 +2,7 @@ from time import sleep
 from random import sample
 from utils import ORDERS, Player, Creature
 
-def _paser(inpution: str) -> tuple:
+def _parser(inpution: str) -> tuple:
     if inpution[-1].isdigit() and inpution[-2] == '到':
         if inpution[:2] == '增加':
             return True, 'add', inpution[2:-2], int(inpution[-1])
@@ -28,7 +28,7 @@ def ask_add_character(player: Player) -> None:
             return None
         
         while True:
-            result = _paser(answer)
+            result = _parser(answer)
             if result[0] == True:
                 if result[1] == 'add':
                     if result[2] in player.cards:
