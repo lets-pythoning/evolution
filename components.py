@@ -11,9 +11,9 @@ class CreatureSeq(object):
     def __str__(self) -> str:
         return [str(creature) for creature in self.creatures]
     
-    def add_creature(self, creature):
+    def add_creature(self, creature, index=-1):
         if creature.id not in self.creatures_by_id:
-            self.creatures.append(creature)
+            self.creatures.insert(index, creature)
             self.creatures_by_id = self.get_ids()
         
         else:
@@ -47,9 +47,15 @@ class Creature(object):
         self.population = 1
         self.size = 1
         self.father = creature_seq
+        self.food = 0
+        self.is_full = False
         self.features = set()
         self.real_features = set()
         self.hidden_features = set()
+        self.feature_names = set()
+        self.is_herbivore = False
+    
+    def setup_neighbor(self):
         self.neighbor = [
             self.father.left(self.id),
             self.father.right(self.id)
@@ -58,11 +64,28 @@ class Creature(object):
     def __str__(self) -> str:
         return f'Creature{self.id}'
     
-    def add_feature(self, feature) -> bool:
+    def announce(self):
         self.features += self.hidden_features
-        
+        self.get_feature_names()
+    
+    def check_is_full(self):
+        if self.food == self.population:
+            self.is_full = True
+    
+    def get_feature_names(self):
+        self.feature_names = [feature.name for feature in self.features]
+    
+    def next_round(self):
+        self.population = self.food
+        self.father.owner.foods += self.food
+        self.food = 0
+    
+    def add_feature(self, feature) -> bool:
         if feature not in self.features and feature not in self.hidden_features:
             if len(self.features) + len(self.hidden_features) < CONSTANTS['FEATURE_MAX']:
+                if feature.name == '食肉':
+                    self.is_herbivore = True
+                
                 feature.check_ignore()
                 if feature.is_ignored:
                     self.hidden_features.add(feature)
@@ -78,6 +101,14 @@ class Creature(object):
             else:
                 return False
         
+        else:
+            return False
+    
+    def delete_feature(self, feature) -> bool:
+        if feature in self.features:
+            self.features.remove(feature)
+            return True
+            
         else:
             return False
 
@@ -104,6 +135,9 @@ class Feature(object):
                 self.is_ignored = True
             else:
                 return None
+    
+    def use(self):
+        pass
 
 class Deck(object):
     
@@ -134,7 +168,17 @@ class Player(object):
         self.is_first = False
         self.cards = []
         self.id = id
+        self.foods = 0
+        self.has_herbivore = False
         self.creatures = CreatureSeq(self)
+    
+    def __str__(self) -> str:
+        return f'Player{self.id}'
+    
+    def check_herbivore(self):
+        for creature in self.creatures.creatures:
+            if creature.is_herbivore:
+                self.has_herbivore = True
     
     def add_creature(self, creature: Creature):
         self.creatures.add_creature(creature)
@@ -144,14 +188,30 @@ class Player(object):
     
     def get_cards(self, deck: Deck):
         cards_num = CONSTANTS['LOWER_LINE_OF_CARDS'] + len(self.creatures.creatures)
-        self.cards.append(deck.get(cards_num))
+        self.cards.append(deck.get_cards(cards_num))
 
-    def check_deletion(self) -> bool:
+    def check_deletion(self, status) -> tuple:
         for creature in self.creatures.creatures:
+            died_flag = False
+            died_creature_list = []
             if creature.population == 0:
+                self.cards.append(status.deck.get_cards(len(creature.features)))
                 self.delete_creature(creature)
                 
-                return True
+                died_flag = True
+                died_creature_list.append(creature)
+                
+        return (died_flag, died_creature_list)
+    
+    def announce(self):
+        for creature in self.creatures.creatures:
+            creature.announce()
+        
+        self.check_herbivore()
+    
+    def next_round(self):
+        for creature in self.creatures.creatures:
+            creature.announce()
 
 class Status(object):
     
@@ -160,7 +220,7 @@ class Status(object):
         self.deck = Deck()
         self.water_hole = 0
     
-    def read(self, status: Status):
+    def read(self, status):
         self.players = status.players
         self.deck = status.deck
         self.water_hole = status.water_hole
