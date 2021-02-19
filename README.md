@@ -35,3 +35,8 @@ Save game in a JSON file.
 ```
 Include some function that can compose a complete game.
 ```
+
+## What is Demo
+Because *evolution* is a very complex game, so I decided to complete it step by step.
+This demo folder contains some simple model, each simulate a simple situation. 
+The demo folder will be saved in **dev branch** until the hole game is finished.
