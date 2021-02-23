@@ -41,7 +41,7 @@ def play_game(water_hole: int):
             water_hole -= 1
             
             if randint(1, 3) == 1:
-                creature1.population += 1
+                creature2.population += 1
                 
         else:
             break
@@ -63,7 +63,7 @@ def play_game(water_hole: int):
 flag = False
 water_hole = 0
 while not flag:
-    water_hole += randint(1, 3)
+    water_hole += 2
     
     flag = play_game(water_hole)
     if type(flag) == type(1):
