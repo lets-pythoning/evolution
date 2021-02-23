@@ -131,24 +131,19 @@ def eat_output(output_list: list, player: Player, status: Status):
             continue
 
         if index >= 1 and index <= len(player.creatures.creatures):
-            if not player.creatures.creatures[index - 1].is_full:
-                if not output_list[index - 1].endwith('(DISABLED)'):
-                    creature = player.creatures.creatures[index]
-                    if creature.is_herbivore:
-                        eat(status)
-                    else:
-                        attack(status)
-                    
-                    return None
-
+            if not output_list[index - 1].endwith(')'):
+                creature = player.creatures.creatures[index]
+                if creature.is_herbivore:
+                    eat(status)
                 else:
-                    print('Creature not herbivore. Change to herbivore creatures please.')
-                    continue
-            
+                    attack(status)
+                
+                return None
+
             else:
-                print('Creature fulled. Change to other creatures please.')
+                print('Not allowed creature, please try again.')
                 continue
-        
+
         else:
             print('Index out of limit. Please try again')
             continue
