@@ -1,37 +1,16 @@
-# Release 0.1.1
+# Evolution
+
+> This program is a simulation of the board game *Evolution*. **It has not been completed yet**, but it has undergone two reconstructions.
+
 ---
 
-## Introduction
-This program is used to simulate the board role-playing game *evolution*.
-This release **is not** fully developed, but is will be complete.
+It completes the entire card system by inheriting the Card abstract base class, and implements the player through the Player class. The state in the program is a global variable that stores all game data, and its structure cannot be changed casually.
 
-## File Explanation
-### components.py 
-```
-Base class for evolution's components.
-```
+**game_utils.py** uses the interactive tools provided in **io_utils.py**, **enter.py** implement the game flow overall, **constants.py** save all constants, if you want to easily customize the game, please change the constants in **constants.py**.
 
-### constants.py
-```
-Include constants(plugins) that evolution need
-```
+---
 
-### evolution.py
-```
-The entrance of the game.
-```
-
-### io_utils.py
-```
-Functions are used to do output in the game.
-```
-
-### game_saver.py
-```
-Save game in a JSON file.
-```
-
-### game_utils.py 
-```
-Include some function that can compose a complete game.
-```
+- python: 3.6.6
+- package_used: random
+- author: https://github.com/lets-pythoning
+- repositories: https://github.com/lets-pythoning/evolution
