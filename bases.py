@@ -1,8 +1,12 @@
-from errors import OwnerError, Dead
-from random import randint
+from random import randint, shuffle
+
+from constants import *
+from errors import Dead, OwnerError
 
 state = {
+    'players': [],
     'water_hole': 0,
+    'deck':[]
 }
 
 def isinstance_decorator(type_: object) -> object:
@@ -40,7 +44,7 @@ class Card(object):
         return f'<Card name={self.name} point={self.point}>'
 
     def __str__(self) -> str:
-        return self.name + f'({self.point})'
+        return self.name + f' ({self.point})'
 
     def __gt__(self, other) -> bool:
         return False
@@ -188,6 +192,7 @@ class Creature(object):
         # 先累加食物, 超出也没关系, 如果没有脂肪组织, 后面会自动变成种群数量.
         
         self.food_num += food_num
+        self.features.sort(key=lambda feature: feature.index)
         for feature in self.features:
             feature.eat(food_num)
         
@@ -199,19 +204,10 @@ class Creature(object):
     
     def check_full(self):
         if self.food_num == self.population:
-            for feature in reversed(self.features):
-                # 判断是否有脂肪组织.
-                
-                if feature.name == '脂肪组织':
-                    fatness = feature
-                    break
-            
-            else:
-                self.is_full = True
-                return
-            
-            if self.size == fatness.extra_food:
-                self.is_full = True
+            if 'AdiposeTissue' in map(lambda feature: feature.name, self.features):
                 return
 
-__all__ = ['Creature', 'Card', 'Player', 'state', 'isinstance_decorator']
+            self.is_full = True
+            return
+
+__all__ = ['Creature', 'Card', 'Player', 'isinstance_decorator']

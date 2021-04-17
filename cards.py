@@ -1,5 +1,4 @@
 from bases import *
-from io_utils import get_card
 
 class Carnivorous(Card):
 
@@ -25,12 +24,25 @@ class Intelligence(Card):
             return False
 
         if self.root.cards != []:
-            choice = input(
-                'You have Intelligence. Do you want to use? ').lower()
+            choice = input('You have Intelligence. Do you want to use? ').lower()
             if choice in ('yes', 'y'):
                 input('Intelligence used, keepout! ')
+                
+                cards = self.root.cards
+                print([str(card) for card in cards], '\n')
 
-                card = get_card(self.root.cards)
+                while True:
+                    index = input('Input card index: ')
+                    try:
+                        index = int(index)
+                        card = cards[index - 1]
+
+                    except IndexError:
+                        print('Index out of range, choose again.')
+
+                    except ValueError:
+                        print('Index not an integer, choose again.')
+
                 self.root.cards.remove(card)
 
                 return True
@@ -80,18 +92,14 @@ class AdiposeTissue(Card):
         self.name = 'AdiposeTissue'
         self.extra_food = 0
 
-    def eat(self, food_num: int):
+    def eat(self, food_num: int) -> int:
         if food_num + self.father.food_num > self.father.population:
-            redundance = food_num + self.father.food_num - self.father.population
+            redundance = food_num - self.father.population
             if self.extra_food + redundance > self.father.size:
                 self.extra_food = self.father.size
                 self.father.is_full = True
 
-                state['water_hole'] += self.extra_food + \
-                    redundance - self.father.size
-
-            else:
-                self.extra_food += redundance
+            self.extra_food += redundance
 
     def next_round(self):
         self.father.food_point = self.extra_food

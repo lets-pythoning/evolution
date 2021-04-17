@@ -14,7 +14,8 @@ def can_attack(hunter: Creature, aim: Creature) -> bool:
             break
     
     else:
-        return True
+        if hunter.size >= aim.size:
+            return True
     
     return False
 
