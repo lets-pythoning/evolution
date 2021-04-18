@@ -17,6 +17,9 @@ def _render_card(name: str) -> object:
 
     return obj
 
+deck = [_render_card(name) for name in CARDS * 3]
+players = [Player(id_=id_) for id_ in range(1, PLAYER_NUM + 1)]
+
 def get_card(cards: list) -> Card:
     print([str(card) for card in cards], '\n')
 
@@ -35,7 +38,7 @@ def get_card(cards: list) -> Card:
 
 def get_food_card() -> list:
     cards = []
-    for player in state['players']:
+    for player in players:
         card = get_card(player.cards)
         cards.append(card)
 
@@ -44,15 +47,15 @@ def get_food_card() -> list:
 def fresh():
     system('cls')
 
-    for player in state['players']:
+    for player in players:
         print(str(player))
         for creature in player.creatures:
             print(f' - {str(creature)}: {[str(feature) for feature in creature.features]}')
 
         print(f' - {[str(card) for card in player.cards]}')
 
-    print(f'water hole: {state["water_hole"]}')
-    print(f'deck: {len(state["deck"])}')
+    print(f'water hole: {water_hole}')
+    print(f'deck: {len(deck)}')
 
 def _can_attack(hunter: Creature, aim: Creature) -> bool:
     for aim_card in aim.features:
@@ -72,83 +75,36 @@ def _can_attack(hunter: Creature, aim: Creature) -> bool:
 
     return False
 
-def total_calculation(creature: Creature) -> int:
-    if creature.is_carnivorous:
-        return 0
-    
-    total = 0
-    for feature in creature.features:
-        if feature.name == 'AdiposeTissue':
-            total += feature.extra_food
-
-    return creature.food_num + total
-
-def rebate_calculation(creature: Creature) -> int:
-    if creature.is_carnivorous:
-        return 0
-
-    for feature in creature.features:
-        if feature.name == 'AdiposeTissue':
-            return 0 if feature.extra_food <= creature.size else feature.extra_food - creature.size
-    
-    return 0 if creature.food_num <= creature.population else creature.food_num - creature.population
-
 # ---------------- #
 #  Upper Function  #
 # ---------------- #
 
-def render_state() -> dict:
-    state = {}
-
-    state['water_hole'] = 0
-    state['players'] = [Player(id_=id_) for id_ in range(1, PLAYER_NUM + 1)]
-
-    deck = []
-    for card in CARDS:
-        for _ in range(SINGLE_CARD_NUM):
-            card_obj = _render_card(card)
-            deck.append(card_obj)
-
-    shuffle(deck)
-    state['deck'] = deck
-
-    return state
-
-state = render_state()
-
 def announce():
     food_cards = get_food_card()
     for card in food_cards:
-        state['water_hole'] += card.point
+        water_hole += card.point
         del card
     
-    if state['water_hole'] < 0:
-        state['water_hole'] = 0
+    if water_hole < 0:
+        water_hole = 0
 
-    players = state['players']
     for player in players:
         player.announce()
     
     fresh()
 
 def next_round():
-    players = state['players']
     for player in players:
         player.announce()
     
     fresh()
-
-def eat(creature: Creature):
-    creature.eat(1)
-    state['water_hole'] -= total_calculation(creature)
-    state['water_hole'] += rebate_calculation(creature)
     
 def attack(hunter: Creature):
     while True:
         fresh()
         player_index = input('Input the player\'s index you\'d want to attack:\n> ')
         try:
-            player = state['players'][int(player_index) - 1]
+            player = players[int(player_index) - 1]
             break
         
         except IndexError:
@@ -172,5 +128,4 @@ def attack(hunter: Creature):
     
     if _can_attack(hunter, creature):
         creature.population -= 1
-        print(creature.size)
         hunter.eat(creature.size)

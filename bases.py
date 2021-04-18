@@ -3,6 +3,8 @@ from random import randint, shuffle
 from constants import *
 from errors import Dead, OwnerError
 
+water_hole = 0
+
 def isinstance_decorator(type_: object) -> object:
     def call_function(function: object) -> object:
         def wrapper(obj: object):
@@ -187,10 +189,20 @@ class Creature(object):
     def eat(self, food_num: int):
         # 先累加食物, 超出也没关系, 如果没有脂肪组织, 后面会自动变成种群数量.
         
+        global water_hole
+
         self.food_num += food_num
+        if not self.is_carnivorous and water_hole >= food_num:
+            water_hole -= food_num
+            
         self.features.sort(key=lambda feature: feature.index)
         for feature in self.features:
             feature.eat(food_num)
+        
+        if self.population < self.food_num:
+            redundance = self.food_num - self.population
+            water_hole += redundance
+            self.food_num = self.population
             
         self.check_full()
     
@@ -202,4 +214,4 @@ class Creature(object):
             self.is_full = True
             return
 
-__all__ = ['Creature', 'Card', 'Player', 'isinstance_decorator']
+__all__ = ['Creature', 'Card', 'Player', 'isinstance_decorator', 'water_hole']
