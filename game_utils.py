@@ -5,6 +5,10 @@ from cards import *
 from constants import *
 from errors import Dead
 
+# ---------------- #
+#  Lower Function  #
+# ---------------- #
+
 def _render_card(name: str) -> object:
     try:
         obj = eval(name + '("in deck")')
@@ -12,25 +16,6 @@ def _render_card(name: str) -> object:
         raise NameError(f'No card named {name}.') from e
 
     return obj
-
-def render_state() -> dict:
-    state = {}
-
-    state['water_hole'] = 0
-    state['players'] = [Player(id_=id_) for id_ in range(1, PLAYER_NUM + 1)]
-
-    deck = []
-    for card in CARDS:
-        for _ in range(SINGLE_CARD_NUM):
-            card_obj = _render_card(card)
-            deck.append(card_obj)
-
-    shuffle(deck)
-    state['deck'] = deck
-
-    return state
-
-state = render_state()
 
 def get_card(cards: list) -> Card:
     print([str(card) for card in cards], '\n')
@@ -63,7 +48,7 @@ def fresh():
         print(str(player))
         for creature in player.creatures:
             print(f' - {str(creature)}: {[str(feature) for feature in creature.features]}')
-        
+
         print(f' - {[str(card) for card in player.cards]}')
 
     print(f'water hole: {state["water_hole"]}')
@@ -87,6 +72,50 @@ def _can_attack(hunter: Creature, aim: Creature) -> bool:
 
     return False
 
+def total_calculation(creature: Creature) -> int:
+    if creature.is_carnivorous:
+        return 0
+    
+    total = 0
+    for feature in creature.features:
+        if feature.name == 'AdiposeTissue':
+            total += feature.extra_food
+
+    return creature.food_num + total
+
+def rebate_calculation(creature: Creature) -> int:
+    if creature.is_carnivorous:
+        return 0
+
+    for feature in creature.features:
+        if feature.name == 'AdiposeTissue':
+            return 0 if feature.extra_food <= creature.size else feature.extra_food - creature.size
+    
+    return 0 if creature.food_num <= creature.population else creature.food_num - creature.population
+
+# ---------------- #
+#  Upper Function  #
+# ---------------- #
+
+def render_state() -> dict:
+    state = {}
+
+    state['water_hole'] = 0
+    state['players'] = [Player(id_=id_) for id_ in range(1, PLAYER_NUM + 1)]
+
+    deck = []
+    for card in CARDS:
+        for _ in range(SINGLE_CARD_NUM):
+            card_obj = _render_card(card)
+            deck.append(card_obj)
+
+    shuffle(deck)
+    state['deck'] = deck
+
+    return state
+
+state = render_state()
+
 def announce():
     food_cards = get_food_card()
     for card in food_cards:
@@ -109,6 +138,11 @@ def next_round():
     
     fresh()
 
+def eat(creature: Creature):
+    creature.eat(1)
+    state['water_hole'] -= total_calculation(creature)
+    state['water_hole'] += rebate_calculation(creature)
+    
 def attack(hunter: Creature):
     while True:
         fresh()

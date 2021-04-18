@@ -96,13 +96,12 @@ class AdiposeTissue(Card):
         if food_num + self.father.food_num > self.father.population:
             redundance = food_num - self.father.population
             if self.extra_food + redundance > self.father.size:
-                self.extra_food = self.father.size
                 self.father.is_full = True
 
             self.extra_food += redundance
 
     def next_round(self):
-        self.father.food_point = self.extra_food
+        self.root.point += self.extra_food
         self.extra_food = 0
         
 class LongNeck(Card):

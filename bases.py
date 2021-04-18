@@ -3,12 +3,6 @@ from random import randint, shuffle
 from constants import *
 from errors import Dead, OwnerError
 
-state = {
-    'players': [],
-    'water_hole': 0,
-    'deck':[]
-}
-
 def isinstance_decorator(type_: object) -> object:
     def call_function(function: object) -> object:
         def wrapper(obj: object):
@@ -62,18 +56,19 @@ class Card(object):
 
 class Player(object):
 
-    __slots__ = ['creatures', 'id_', 'cards']
+    __slots__ = ['creatures', 'id_', 'cards', 'point']
 
     def __init__(self, id_: int):
         self.creatures = [Creature(id_=1, player=self)]
         self.id_ = id_
+        self.point = 0
         self.cards = []
 
     def __str__(self) -> str:
         return f'Player ({self.id_})'
 
     def __repr__(self) -> str:
-        return f'<Player id_={self.id_}>'
+        return f'<Player id_={self.id_} point={self.point}>'
 
     def get_neighbors(self, id_: int) -> dict:
         creature_ids = list(map(lambda creature: creature.id, self.creatures))
@@ -181,6 +176,7 @@ class Creature(object):
     
     def next_round(self):
         self.population = self.food_num
+        self.father.point += self.food_num
         self.food_num = 0
         if not self.population:
             raise Dead(self.__str__() + ' dead.')
@@ -195,15 +191,11 @@ class Creature(object):
         self.features.sort(key=lambda feature: feature.index)
         for feature in self.features:
             feature.eat(food_num)
-        
-        if not self.food_num <= self.population:
-            state['water_hole'] += self.food_num - self.population
-            self.food_num = self.population
             
         self.check_full()
     
     def check_full(self):
-        if self.food_num == self.population:
+        if self.food_num >= self.population:
             if 'AdiposeTissue' in map(lambda feature: feature.name, self.features):
                 return
 
