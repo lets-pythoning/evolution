@@ -129,3 +129,56 @@ def attack(hunter: Creature):
     if _can_attack(hunter, creature):
         creature.population -= 1
         hunter.eat(creature.size)
+
+def eat(player: Player):
+    fresh()
+    print(f'{str(player)}, you have got creature that not full:\n{[str(creature) for creature in player.creatures if not creature.is_full]}')
+    
+    choice = input('Do you want to eat?\n> ')
+    if choice.lower() in ('yes', 'y'):
+        while True:
+            index = input('Which creature do you want to let it eat?\n> ')
+            creature_not_full = [creature for creature in player.creatures if not creature.is_full]
+            try:
+                if index.lower() != 'skip':
+                    index = int(index)
+                    creature = creature_not_full[index - 1]
+                    
+                    if not creature.is_carnivorous:
+                        assert water_hole
+                
+                else:
+                    return
+                
+                break
+            
+            except IndexError:
+                print('Creature index out of range. Try again.')
+            except ValueError:
+                print('Try to input an integer. Please try again.')
+            except AssertionError:
+                print('Water hole is empty. Choose another one or skip.')
+        
+        if creature.is_carnivorous:
+            attack(creature)
+        else:
+            creature.eat(1)
+
+def add_card(player: Player):
+    print(f'Your hand cards: {[str(card) for card in player.cards]}')
+    
+    while True:
+        index = input('Which creature?\n> ')
+        try:
+            index = int(index)
+            creature = player.creatures[index - 1]
+        
+        except IndexError:
+            print('Creature index out of range. Try again.')
+        except ValueError:
+            print('Try to input an integer. Please try again.')
+    
+    print(f'{str(creature)}\' features: {[str(feature) for feature in creature.hidden_features + creature.features]}')
+    
+    card = get_card(player.cards)
+    creature.add_feature(card)

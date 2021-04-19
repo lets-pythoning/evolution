@@ -191,8 +191,11 @@ class Creature(object):
         
         global water_hole
 
-        self.food_num += food_num
-        if not self.is_carnivorous and water_hole >= food_num:
+        if self.is_carnivorous:
+            self.food_num += food_num
+        
+        elif water_hole >= food_num:
+            self.food_num += food_num
             water_hole -= food_num
             
         self.features.sort(key=lambda feature: feature.index)
