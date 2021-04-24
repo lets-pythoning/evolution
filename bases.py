@@ -17,6 +17,15 @@ def isinstance_decorator(type_: object) -> object:
     
     return call_function
 
+def water_hole_control(number: int) -> int:
+    global water_hole
+    
+    water_hole += number
+    if water_hole < 0:
+        water_hole = 0
+    
+    return water_hole
+
 class Card(object):
 
     __slots__ = ['point', 'index', 'name', 'extra_food', 'root', 'father']
@@ -139,35 +148,14 @@ class Creature(object):
         else:
             raise OwnerError('Not owned card been placed!')
     
-    def delete_feature(self, index: int):
-        if isinstance(index, int):
-            if index >= 0:
-                # 在IO判断时, hidden_features永远在features后面, 所以索引较大. 
-                # 从普通人的角度来看, 索引从1开始, 所以减一
-                
-                length_of_features = len(self.features)
-                if length_of_features >= index:
-                    feature = self.features.pop(index - 1)
-                elif len(self.features) + len(self.hidden_features) >= index:
-                    feature = self.hidden_features.pop(index - length_of_features - 1)
-                else:
-                    raise IndexError(f'Index out of range: {index - 1}')
+    def delete_feature(self, feature):
+        try:       
+            self.features.remove(feature)
+        except ValueError as e:
+            raise OwnerError(f'Not owned feature: {repr(feature)}') from e
 
-                feature.on_remove()
-                del feature
-            
-            else:
-                raise IndexError(f'Index out of range: {index}')
-        
-        else:
-            # 尝试类型转换.
-            
-            try:
-                index = int(index)
-            except ValueError as e:
-                raise ValueError('Index not int!') from e
-            else:
-                self.delete_feature(index)
+        feature.on_remove()
+        del feature
     
     def announce(self):
         self.features += self.hidden_features
@@ -217,4 +205,4 @@ class Creature(object):
             self.is_full = True
             return
 
-__all__ = ['Creature', 'Card', 'Player', 'isinstance_decorator', 'water_hole']
+__all__ = ['Creature', 'Card', 'Player', 'isinstance_decorator', 'water_hole_control']

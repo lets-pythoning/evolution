@@ -1,6 +1,6 @@
 # Evolution
 
-> This program is a simulation of the board game *Evolution*. **It has not been completed yet**, but it has undergone two reconstructions.
+> This program is a simulation of the board game *Evolution*. **It is completed, and unstable!**, it had undergone two reconstructions.
 
 ---
 

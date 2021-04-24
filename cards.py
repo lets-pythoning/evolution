@@ -81,12 +81,10 @@ class Cooperation(Card):
         self.name = 'Cooperation'
 
     def eat(self, food_num: int):
-        global water_hole
-        
         right_neighbor = self.root.get_neighbors(self.father.id)['right']
-        if right_neighbor and not right_neighbor.is_carnivorous and water_hole >= 1:
-            right_neighbor.food_num += 1
-            water_hole -= 1
+        if right_neighbor and not right_neighbor.is_carnivorous:
+            if water_hole_control(-1):
+                right_neighbor.food_num += 1
 
 class AdiposeTissue(Card):
 
@@ -196,11 +194,9 @@ class Foraging(Card):
         self.name = 'Foraging'
     
     def eat(self, food_num: int):
-        global water_hole
-        
-        if not self.father.is_carnivorous and water_hole >= 1:
-            self.father.food_num += 1
-            water_hole -= 1
+        if not self.father.is_carnivorous:
+            if water_hole_control(-1):
+                self.father.food_num += 1
 
 class ClusterDefense(Card):
     

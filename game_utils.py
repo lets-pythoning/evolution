@@ -20,7 +20,7 @@ def _render_card(name: str) -> object:
 deck = [_render_card(name) for name in CARDS * 3]
 players = [Player(id_=id_) for id_ in range(1, PLAYER_NUM + 1)]
 
-def get_card(cards: list) -> Card:
+def _get_card(cards: list) -> Card:
     print([str(card) for card in cards], '\n')
 
     while True:
@@ -36,10 +36,24 @@ def get_card(cards: list) -> Card:
         except ValueError:
             print('Index not an integer, choose again.')
 
-def get_food_card() -> list:
+def _get_creature(creatures: list) -> Creature:
+    while True:
+        index = input('Which creature?\n> ')
+        try:
+            index = int(index)
+            creature = creatures[index - 1]
+
+        except IndexError:
+            print('Creature index out of range. Try again.')
+        except ValueError:
+            print('Try to input an integer. Please try again.')
+    
+    return creature
+
+def _get_food_card() -> list:
     cards = []
     for player in players:
-        card = get_card(player.cards)
+        card = _get_card(player.cards)
         cards.append(card)
 
     return cards
@@ -54,7 +68,7 @@ def fresh():
 
         print(f' - {[str(card) for card in player.cards]}')
 
-    print(f'water hole: {water_hole}')
+    print(f'water hole: {water_hole_control(0)}')
     print(f'deck: {len(deck)}')
 
 def _can_attack(hunter: Creature, aim: Creature) -> bool:
@@ -80,13 +94,10 @@ def _can_attack(hunter: Creature, aim: Creature) -> bool:
 # ---------------- #
 
 def announce():
-    food_cards = get_food_card()
+    food_cards = _get_food_card()
     for card in food_cards:
-        water_hole += card.point
+        water_hole_control(card.point)
         del card
-    
-    if water_hole < 0:
-        water_hole = 0
 
     for player in players:
         player.announce()
@@ -136,49 +147,91 @@ def eat(player: Player):
     
     choice = input('Do you want to eat?\n> ')
     if choice.lower() in ('yes', 'y'):
-        while True:
-            index = input('Which creature do you want to let it eat?\n> ')
-            creature_not_full = [creature for creature in player.creatures if not creature.is_full]
-            try:
-                if index.lower() != 'skip':
-                    index = int(index)
-                    creature = creature_not_full[index - 1]
-                    
-                    if not creature.is_carnivorous:
-                        assert water_hole
-                
-                else:
-                    return
-                
-                break
-            
-            except IndexError:
-                print('Creature index out of range. Try again.')
-            except ValueError:
-                print('Try to input an integer. Please try again.')
-            except AssertionError:
-                print('Water hole is empty. Choose another one or skip.')
+        index = input('Do you want to skip?\n> ')
+        creature_not_full = [creature for creature in player.creatures if not creature.is_full]
+        if index.lower() != 'skip':
+            creature = _get_creature(creature_not_full)
         
-        if creature.is_carnivorous:
-            attack(creature)
         else:
-            creature.eat(1)
+            return
+
+    if creature.is_carnivorous:
+        attack(creature)
+    else:
+        creature.eat(1)
+
+def is_deck() -> bool:
+    if deck:
+        return True
+    
+    return False
+
+def split_cards():
+    global deck
+    
+    for player in players:
+        card_num = 3 + len(player.creatures)
+        if len(deck) >= card_num:
+            cards = deck[-card_num:]
+            deck = deck[:-card_num]
+        
+        else:
+            cards = deck
+            deck = []
+            
+        for card in cards:
+            card.root = player
+            card.father = player
+            
+            player.cards.append(card)
 
 def add_card(player: Player):
+    fresh()
     print(f'Your hand cards: {[str(card) for card in player.cards]}')
     
-    while True:
-        index = input('Which creature?\n> ')
-        try:
-            index = int(index)
-            creature = player.creatures[index - 1]
-        
-        except IndexError:
-            print('Creature index out of range. Try again.')
-        except ValueError:
-            print('Try to input an integer. Please try again.')
+    creature = _get_creature(player.creatures)
     
     print(f'{str(creature)}\' features: {[str(feature) for feature in creature.hidden_features + creature.features]}')
     
-    card = get_card(player.cards)
+    card = _get_card(player.cards)
     creature.add_feature(card)
+
+def delete_card(player: Player):
+    fresh()
+
+    creature = _get_creature(player.creatures)
+    
+    print(f'{str(creature)}\' features: {[str(feature) for feature in creature.hidden_features + creature.features]}')
+    
+    card = _get_card(creature.hidden_features + creature.features)
+    creature.delete_feature(card)
+
+def private_move():
+    for player in players:
+        input(f'{str(player)}\' private move.')
+        
+        answer = ''
+        while answer not in ('q', 'quit'):
+            answer = input(f'What do you want to do?\n> ').lower()
+            
+            if answer in ('del', 'd', 'delete', '-'):
+                delete_card(player)
+            elif answer in ('add', 'a', '+'):
+                add_card(player)
+            else:
+                print('What?')
+
+def eat_together() -> bool:
+    result = False
+    for player in players:
+        fresh()
+        
+        choice = input('Do you want to eat?\n> ').lower()
+        if choice in ('yes', 'y'):
+            flag = any([creature.is_full for creature in player.creatures])
+            if flag:
+                result = True
+            else:
+                print('Sorry. Your creature are already full.')
+    
+    return result
