@@ -1,5 +1,7 @@
 from bases import *
 
+# todo: Add card Scavenger.
+
 class Carnivorous(Card):
 
     def __init__(self, player: Player, point=(0, 5), index=1):
@@ -81,7 +83,7 @@ class Cooperation(Card):
         self.name = 'Cooperation'
 
     def eat(self, food_num: int):
-        right_neighbor = self.root.get_neighbors(self.father.id)['right']
+        right_neighbor = self.root.get_neighbors(self.father)['right']
         if right_neighbor and not right_neighbor.is_carnivorous:
             if water_hole_control(-1):
                 right_neighbor.food_num += 1
@@ -121,7 +123,7 @@ class Symbiosis(Card):
         self.name = 'Symbiosis'
     
     def been_attack(self, hunter: Creature) -> bool:
-        right_neighbor = self.root.get_neighbors(self.father.id_)['right']
+        right_neighbor = self.root.get_neighbors(self.father)['right']
         if right_neighbor:
             if right_neighbor.size > self.father.size:
                 return False

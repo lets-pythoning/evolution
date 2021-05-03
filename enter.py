@@ -1,6 +1,6 @@
 from game_utils import *
 
-def play():
+def play(): 
     while is_deck():
         split_cards()
         private_move()
@@ -11,3 +11,8 @@ def play():
             flag = eat_together()
         
         next_round()
+    
+    check_winner()
+
+if __name__ == '__main__':
+    play()

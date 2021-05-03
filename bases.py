@@ -17,7 +17,9 @@ def isinstance_decorator(type_: object) -> object:
     
     return call_function
 
-def water_hole_control(number: int) -> int:
+def water_hole_control(number=0) -> int:
+    # 因为全局变量的关系, 这里规定一个对水塘进行设置的API
+    
     global water_hole
     
     water_hole += number
@@ -70,7 +72,7 @@ class Player(object):
     __slots__ = ['creatures', 'id_', 'cards', 'point']
 
     def __init__(self, id_: int):
-        self.creatures = [Creature(id_=1, player=self)]
+        self.creatures = [Creature(player=self)]
         self.id_ = id_
         self.point = 0
         self.cards = []
@@ -81,9 +83,8 @@ class Player(object):
     def __repr__(self) -> str:
         return f'<Player id_={self.id_} point={self.point}>'
 
-    def get_neighbors(self, id_: int) -> dict:
-        creature_ids = list(map(lambda creature: creature.id, self.creatures))
-        index = creature_ids.index(id_)
+    def get_neighbors(self, creature) -> dict:
+        index = self.creatures.index(creature)
         neighbors = {'left': None, 'right': None}
         if index != 0:
             neighbors['left'] = self.creatures[index - 1]
@@ -103,17 +104,18 @@ class Player(object):
         for creature in self.creatures:
             try:
                 creature.next_round()
-                
+            
             except Dead as e:
                 print(e)
+                
+                self.creatures.remove(creature)
                 del creature
-            
+
 class Creature(object):
     
-    __slots__ = ['id_', 'size', 'population', 'hidden_features', 'features', 'father', 'is_full', 'is_carnivorous', 'food_num']
+    __slots__ = ['size', 'population', 'hidden_features', 'features', 'father', 'is_full', 'is_carnivorous', 'food_num']
     
-    def __init__(self, id_: int, player: Player):
-        self.id_ = id_
+    def __init__(self, player: Player):
         self.size = 1
         self.population = 1
         self.hidden_features = []
@@ -124,26 +126,27 @@ class Creature(object):
         self.food_num = 0
     
     def __str__(self) -> str:
-        return f'Creature ({self.id_})'
+        return f'Creature ({self.father.creatures.index(self) + 1})'
     
     def __repr__(self) -> str:
-        return f'<Creature id_={self.id_} population={self.population} size={self.size} father={repr(self.father)} is_carnivorous={self.is_carnivorous} food_num={self.food_num}>'
-
-    def add_feature(self, feature):
+        return f'<Creature population={self.population} size={self.size} father={repr(self.father)} is_carnivorous={self.is_carnivorous} food_num={self.food_num}>'
+    
+    def add_feature(self, new_feature):
         # 判断是否是未放置且自己拥有的牌.
-        if feature.root == self.father:
-            if feature not in self.features and feature not in self.hidden_features:
+        if new_feature.root == self.father:
+            feature_names = [feature.name for feature in self.features + self.hidden_features]
+            if new_feature.name not in feature_names:
                 if len(self.features) < 3:
-                    feature.father = self
-                    feature.on_place(self)
+                    new_feature.father = self
+                    new_feature.on_place(self)
                     
-                    self.hidden_features.append(feature)
+                    self.hidden_features.append(new_feature)
                 
                 else:
                     raise IndexError('Features more than 3!')
             
             else:
-                raise ValueError(f'Same feature {str(feature)} been placed!')
+                raise ValueError(f'Same feature {str(new_feature)} been placed!')
             
         else:
             raise OwnerError('Not owned card been placed!')
@@ -159,6 +162,7 @@ class Creature(object):
     
     def announce(self):
         self.features += self.hidden_features
+        self.hidden_features = []
         self.features.sort(key=lambda feature: feature.index)
         
         for feature in self.features:
@@ -168,7 +172,7 @@ class Creature(object):
         self.population = self.food_num
         self.father.point += self.food_num
         self.food_num = 0
-        if not self.population:
+        if self.population <= 0:
             raise Dead(self.__str__() + ' dead.')
             
         for feature in self.features:
@@ -185,6 +189,9 @@ class Creature(object):
         elif water_hole >= food_num:
             self.food_num += food_num
             water_hole -= food_num
+        
+        else:
+            print('Water hole isn\'t affordable.')
             
         self.features.sort(key=lambda feature: feature.index)
         for feature in self.features:

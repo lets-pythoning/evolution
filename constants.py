@@ -2,7 +2,7 @@ PLAYER_NUM = 2
 SINGLE_CARD_NUM = 4
 CARDS = [
     'GroupHunting', 'CaveDwelling', 'Climb', 'Intelligence',
-    'WarningSignal', 'Cooperation', 'Foraging', 'ClusterDefense',
+    'Cooperation', 'Foraging', 'ClusterDefense',
     'Carnivorous', 'AdiposeTissue'
 ]
 

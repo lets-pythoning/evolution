@@ -11,6 +11,6 @@ It completes the entire card system by inheriting the Card abstract base class, 
 ---
 
 - python: 3.6.6
-- package_used: random
+- package_used: random, os, time
 - author: https://github.com/lets-pythoning
 - repositories: https://github.com/lets-pythoning/evolution
