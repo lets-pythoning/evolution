@@ -1,13 +1,14 @@
 from random import randint, shuffle
+from typing import Tuple, List, Any, Union
 
 from constants import *
 from errors import Dead, OwnerError
 
 water_hole = 0
 
-def isinstance_decorator(type_: object) -> object:
+def isinstance_decorator(type_: Any) -> object:
     def call_function(function: object) -> object:
-        def wrapper(obj: object):
+        def wrapper(obj: Any):
             if isinstance(obj, type_):
                 function(obj)
             else:
@@ -17,7 +18,7 @@ def isinstance_decorator(type_: object) -> object:
     
     return call_function
 
-def water_hole_control(number=0) -> int:
+def water_hole_control(number: int = 0) -> int:
     # 因为全局变量的关系, 这里规定一个对水塘进行设置的API
     
     global water_hole
@@ -32,7 +33,7 @@ class Card(object):
 
     __slots__ = ['point', 'index', 'name', 'extra_food', 'root', 'father']
 
-    def __init__(self, player, point=None, index=1):
+    def __init__(self, player, point: Tuple[int, int] = None, index: int = 1):
         if isinstance(point, int):
             self.point = randint(*point)
         else:

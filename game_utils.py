@@ -83,21 +83,21 @@ def _get_food_card() -> list:
     return cards
 
 def _can_attack(hunter: Creature, aim: Creature) -> bool:
-    for aim_card in aim.features:
-        if aim_card.been_attack(hunter):
-            continue
+    disabled = [False] * len(aim.features)
+    for index, aim_feature in enumerate(aim.features):
+        if aim_feature.been_attack(hunter):
+            disabled[index] = True
 
         flag_list = []
         hunter.features.sort(key=lambda card: card.index)
-        for hunter_card in hunter.features:
-            flag_list.append(hunter_card > aim_card)
+        for hunter_feature in hunter.features:
+            flag_list.append(hunter_feature > aim_feature)
 
         if not any(flag_list):
-            break
+            disabled[index] = True
 
-    else:
-        if hunter.population > aim.population:
-            return True
+    if hunter.size > aim.size and not (False in disabled):
+        return True
 
     return False
 
