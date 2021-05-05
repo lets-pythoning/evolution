@@ -1,0 +1,14 @@
+{
+    "openingIntroduction": "This is Evolution, a board game. You will control several creatures and compete with other players. Each creatures requires you to give it a strategy, which is determined by your cards and there features.",
+    "creaturesIntroduction": "The creatures are divided into carnivorous creatures that need to attack to eat and herbivores that rely on ponds. How to control offense and defense, passive and active, is the secret of victory in the entire game.",
+    "haveFun": "In short, Have fun.",
+    "addCardGuide": "Okay, now you are going to add features to your creatures. First, you have to enter the index of the creatures that you want to add features in the input box that will pop up later. The index is displayed in the brackets behind the creatures.",
+    "deleteCardGuide": "After that, if the feature of your creatures has existed for more than one round, you can choose to discard it. After you enter the index of the feature to be discarded, you will choose what you want to get. You can increase the creatures’ population or size, or added new creatures.",
+    "howToQuit": "If you want to increase or decrease the stop feature, enter 'q' or 'quit' to exit. Although the input box has a simple fuzzy matching, but not very useful if you input carelessly.",
+    "privateMoveConclusion": "Finally, when asked about your actions, type 'add' to add features, type 'delete' or 'del' to decrease features, and type 'q' to exit.",
+    "foodCard": "A food card is a special card that will be discarded after using it. The sum of the points of all players' food cards will be the number of new foods in the pond. The number of food cards can be viewed in the brackets behind its name.",
+    "herbivoresEatGuide": "It is not very complicated for herbivores to eat, just enter the index of the herbivore.",
+    "carnivoresEatGuide": "For a carnivore to eat, you need to compare its attacking card with the opponent's attacking card, its size and the opponent's size. Any one below the opponent cannot successfully attack. To select the attack object and attack, you only need to enter the index of the carnivore and the opponent player and The index of the creatures is sufficient, and the player index can also be found in brackets after the player name.",
+    "defenseAndAttack": "The cards are divided into four types: defense cards, attack cards and etc. Carnivorous creatures need attack cards to assist in their offense, and defense cards are required by all creatures to avoid being attacked by carnivorous creatures.",
+    "eatConclusion": "Have fun in eating!"
+}

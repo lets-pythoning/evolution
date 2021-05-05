@@ -26,8 +26,8 @@ if __name__ == '__main__':
     wildcard = Card(player=player)
     player.cards.append(wildcard)
 
-    hunter = Creature(id_=1, player=player)
-    aim = Creature(id_=2, player=player)
+    hunter = Creature(player=player)
+    aim = Creature(player=player)
     
     intelligence = Intelligence(player=player)
     carnivorous = Carnivorous(player=player)

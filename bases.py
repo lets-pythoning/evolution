@@ -172,6 +172,7 @@ class Creature(object):
         self.population = self.food_num
         self.father.point += self.food_num
         self.food_num = 0
+        self.is_full = False
         if self.population <= 0:
             raise Dead(self.__str__() + ' dead.')
             
@@ -183,27 +184,29 @@ class Creature(object):
         
         global water_hole
 
+        if self.is_carnivorous or water_hole:
+            self.features.sort(key=lambda feature: feature.index)
+            for feature in self.features:
+                feature.eat(food_num)
+
         if self.is_carnivorous:
             self.food_num += food_num
-        
+
         elif water_hole >= food_num:
             self.food_num += food_num
             water_hole -= food_num
-        
+            
+            if self.population < self.food_num:
+                redundance = self.food_num - self.population
+                water_hole += redundance
+                self.food_num = self.population
+
+            self.check_full()
+    
         else:
             print('Water hole isn\'t affordable.')
+            return
             
-        self.features.sort(key=lambda feature: feature.index)
-        for feature in self.features:
-            feature.eat(food_num)
-        
-        if self.population < self.food_num:
-            redundance = self.food_num - self.population
-            water_hole += redundance
-            self.food_num = self.population
-            
-        self.check_full()
-    
     def check_full(self):
         if self.food_num >= self.population:
             if 'AdiposeTissue' in map(lambda feature: feature.name, self.features):

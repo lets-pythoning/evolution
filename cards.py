@@ -95,14 +95,17 @@ class AdiposeTissue(Card):
         self.name = 'AdiposeTissue'
         self.extra_food = 0
 
+    def __str__(self) -> str:
+        return super().__str__() + f' {self.extra_food} food'
+
     def eat(self, food_num: int) -> int:
         if food_num + self.father.food_num > self.father.population:
-            redundance = food_num - self.father.population
-            if self.extra_food + redundance > self.father.size:
-                self.father.is_full = True
-
+            redundance = food_num + self.father.food_num - self.father.population
             self.extra_food += redundance
-
+            if self.extra_food > self.father.size:
+                self.father.is_full = True
+                self.extra_food = self.father.size
+            
     def next_round(self):
         self.root.point += self.extra_food
         self.extra_food = 0

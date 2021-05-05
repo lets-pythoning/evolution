@@ -18,7 +18,7 @@ def _render_card(name: str) -> object:
 
     return obj
 
-deck = [_render_card(name) for name in CARDS * 3]
+deck = [_render_card(name) for name in CARDS * SINGLE_CARD_NUM]
 players = [Player(id_=id_) for id_ in range(1, PLAYER_NUM + 1)]
 
 shuffle(deck)
@@ -155,9 +155,9 @@ def attack(hunter: Creature):
 
 def eat(player: Player):
     fresh()
-    print(f'{str(player)}, you have got creature that not full:\n{[str(creature) for creature in player.creatures if not creature.is_full]}')
+    print(f'{str(player)}, you have got creature that not full:\n{[str(creature) for creature in filter(lambda creature: not creature.is_full, player.creatures)]}')
 
-    creature_not_full = [creature for creature in player.creatures if not creature.is_full]
+    creature_not_full = list(filter(lambda creature: not creature.is_full, player.creatures))
     creature = _get_creature(creature_not_full)
 
     if creature.is_carnivorous:
@@ -273,18 +273,22 @@ def eat_together() -> bool:
         fresh()
         
         if not any(not creature.is_full for creature in player.creatures):
+            print(f'{str(player)}, all of your creature are full.')
+            sleep(1)
+            
             continue
+            
+        if water_hole_control() == 0:
+            print('Water hole is empty!')
+            sleep(1)
+            
+            break
             
         choice = input(f'{str(player)}, do you want to eat?\n> ').lower()
         if choice in ('yes', 'y'):
-            flag = any((not creature.is_full) for creature in player.creatures) and water_hole_control()
-            if flag:
-                result = True
-                eat(player)
-                
-            else:
-                print('Sorry. Your creatures are already full.')
-    
+            result = True
+            eat(player)
+            
     return result
 
 def check_winner():
