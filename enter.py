@@ -1,8 +1,3 @@
-from json import load
-from os import system
-from sys import argv
-
-from constants import IO_CHAR_LIMIT
 from game_utils import *
 
 def play(): 

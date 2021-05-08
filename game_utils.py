@@ -1,10 +1,4 @@
-from os import system
-from random import shuffle
-from time import sleep
-
 from cards import *
-from constants import *
-from errors import Dead
 
 # ---------------- #
 #  Lower Function  #
@@ -77,6 +71,7 @@ def _get_food_card() -> list:
         
         card = _get_card(player.cards)
         cards.append(card)
+        player.cards.remove(card)
         
         fresh()
 
@@ -87,13 +82,14 @@ def _can_attack(hunter: Creature, aim: Creature) -> bool:
     for index, aim_feature in enumerate(aim.features):
         if aim_feature.been_attack(hunter):
             disabled[index] = True
+            continue
 
         flag_list = []
         hunter.features.sort(key=lambda card: card.index)
         for hunter_feature in hunter.features:
             flag_list.append(hunter_feature > aim_feature)
 
-        if not any(flag_list):
+        if any(flag_list):
             disabled[index] = True
 
     if hunter.size > aim.size and not (False in disabled):
@@ -141,13 +137,16 @@ def attack(hunter: Creature):
             print('Try to input an integer. Please try again.')
 
     fresh()
-    print(f'You want to attack{str(player)}.')
+    print(f'You want to attack {str(player)}.')
         
     creature = _get_creature(player.creatures)
     
     if _can_attack(hunter, creature):
         creature.population -= 1
         hunter.eat(creature.size)
+        
+        print('Attack succeed.')
+        sleep(1)
     
     else:
         print('Sorry, you can\'t attack it.')
@@ -155,7 +154,7 @@ def attack(hunter: Creature):
 
 def eat(player: Player):
     fresh()
-    print(f'{str(player)}, you have got creature that not full:\n{[str(creature) for creature in filter(lambda creature: not creature.is_full, player.creatures)]}')
+    print(f'{str(player)}, you have got creature that not full.')
 
     creature_not_full = list(filter(lambda creature: not creature.is_full, player.creatures))
     creature = _get_creature(creature_not_full)
@@ -233,7 +232,7 @@ def delete_card(player: Player):
                 break
             
             if choice in ('add creature', 'ac', '+c', '++', 'add', 'a', 'ad'):
-                position = input('Which side?\n>')
+                position = input('Which side?\n> ')
                 if 'left'.startswith(position):
                     player.creatures.insert(0, Creature(player=player))
                     break
@@ -272,22 +271,21 @@ def eat_together() -> bool:
     for player in players:
         fresh()
         
-        if not any(not creature.is_full for creature in player.creatures):
-            print(f'{str(player)}, all of your creature are full.')
-            sleep(1)
-            
-            continue
-            
         if water_hole_control() == 0:
             print('Water hole is empty!')
             sleep(1)
             
             break
-            
-        choice = input(f'{str(player)}, do you want to eat?\n> ').lower()
-        if choice in ('yes', 'y'):
-            result = True
-            eat(player)
+        
+        if any(not creature.is_full for creature in player.creatures):
+            choice = input(f'{str(player)}, do you want to eat?\n> ').lower()
+            if choice in ('yes', 'y'):
+                result = True
+                eat(player)
+        
+        else:
+            print(f'{str(player)}, all of your creature are full.')
+            sleep(1)
             
     return result
 

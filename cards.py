@@ -1,7 +1,5 @@
 from bases import *
 
-# todo: Add card Scavenger.
-
 class Carnivorous(Card):
 
     def __init__(self, player: Player, point=(0, 5), index=1):
@@ -26,7 +24,7 @@ class Intelligence(Card):
             return False
 
         if self.root.cards != []:
-            choice = input('You have Intelligence. Do you want to use? ').lower()
+            choice = input(f'The aim has {str(other)}, do you want to use Intelligence? ').lower()
             if choice in ('yes', 'y'):
                 input('Intelligence used, keepout! ')
                 
@@ -38,6 +36,7 @@ class Intelligence(Card):
                     try:
                         index = int(index)
                         card = cards[index - 1]
+                        break
 
                     except IndexError:
                         print('Index out of range, choose again.')
@@ -85,8 +84,10 @@ class Cooperation(Card):
     def eat(self, food_num: int):
         right_neighbor = self.root.get_neighbors(self.father)['right']
         if right_neighbor and not right_neighbor.is_carnivorous:
-            if water_hole_control(-1):
-                right_neighbor.food_num += 1
+            right_neighbor.check_full()
+            if not right_neighbor.is_full:
+                if water_hole_control(-1):
+                    right_neighbor.food_num += 1
 
 class AdiposeTissue(Card):
 
@@ -99,10 +100,10 @@ class AdiposeTissue(Card):
         return super().__str__() + f' {self.extra_food} food'
 
     def eat(self, food_num: int) -> int:
-        if food_num + self.father.food_num > self.father.population:
-            redundance = food_num + self.father.food_num - self.father.population
+        if self.father.food_num > self.father.population:
+            redundance = self.father.food_num - self.father.population
             self.extra_food += redundance
-            if self.extra_food > self.father.size:
+            if self.extra_food >= self.father.size:
                 self.father.is_full = True
                 self.extra_food = self.father.size
             
@@ -117,7 +118,10 @@ class LongNeck(Card):
         self.name = 'LongNeck'
     
     def announce(self):
-        self.father.food_num += 1
+        if not self.father.is_carnivorous:
+            water_hole_control(1)
+            self.father.eat(1)
+            self.father.check_full()
 
 class Symbiosis(Card):
     
@@ -127,9 +131,8 @@ class Symbiosis(Card):
     
     def been_attack(self, hunter: Creature) -> bool:
         right_neighbor = self.root.get_neighbors(self.father)['right']
-        if right_neighbor:
-            if right_neighbor.size > self.father.size:
-                return False
+        if right_neighbor and right_neighbor.size > self.father.size:
+            return False
         
         return True
 
@@ -140,8 +143,10 @@ class HardShell(Card):
         self.name = 'HardShell'
     
     def been_attack(self, hunter: Creature) -> bool:
-        self.father.size += 4
-        return True
+        if hunter.size > self.father.size + 4:
+            return True
+
+        return False
 
 class Horn(Card):
     

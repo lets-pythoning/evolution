@@ -1,6 +1,6 @@
 # Evolution
 
-> This program is a simulation of the board game *Evolution*. **It is completed, and unstable!**, it had undergone two reconstructions.
+> This program is a simulation of the board game *Evolution*. **It is completed, and not very stable!**, it had undergone two reconstructions and countless debugs.
 
 ---
 
@@ -11,6 +11,6 @@ It completes the entire card system by inheriting the Card abstract base class, 
 ---
 
 - python: 3.6.6
-- package_used: random, os, time
+- package_used: random, os, time, typing, sys, json
 - author: https://github.com/lets-pythoning
 - repositories: https://github.com/lets-pythoning/evolution

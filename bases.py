@@ -1,5 +1,9 @@
+from json import load
+from os import system
 from random import randint, shuffle
-from typing import Tuple, List, Any, Union
+from sys import argv
+from time import sleep
+from typing import Any, List, Tuple, Union
 
 from constants import *
 from errors import Dead, OwnerError
@@ -137,7 +141,7 @@ class Creature(object):
         if new_feature.root == self.father:
             feature_names = [feature.name for feature in self.features + self.hidden_features]
             if new_feature.name not in feature_names:
-                if len(self.features) < 3:
+                if len(feature_names) < 3:
                     new_feature.father = self
                     new_feature.on_place(self)
                     
@@ -185,35 +189,33 @@ class Creature(object):
         
         global water_hole
 
-        if self.is_carnivorous or water_hole:
-            self.features.sort(key=lambda feature: feature.index)
-            for feature in self.features:
-                feature.eat(food_num)
-
         if self.is_carnivorous:
             self.food_num += food_num
 
         elif water_hole >= food_num:
             self.food_num += food_num
             water_hole -= food_num
-            
-            if self.population < self.food_num:
-                redundance = self.food_num - self.population
-                water_hole += redundance
-                self.food_num = self.population
-
-            self.check_full()
-    
+        
         else:
             print('Water hole isn\'t affordable.')
             return
-            
+
+        self.features.sort(key=lambda feature: feature.index)
+        for feature in self.features:
+            feature.eat(food_num)
+
+        for creature in self.father.creatures:
+            creature.check_full()
+
     def check_full(self):
-        if self.food_num >= self.population:
+        global water_hole
+        
+        if self.population <= self.food_num:
+            redundance = self.food_num - self.population
+            water_hole += redundance
+            self.food_num = self.population
+            
             if 'AdiposeTissue' in map(lambda feature: feature.name, self.features):
                 return
 
             self.is_full = True
-            return
-
-__all__ = ['Creature', 'Card', 'Player', 'isinstance_decorator', 'water_hole_control']

@@ -5,13 +5,14 @@ def can_attack(hunter: Creature, aim: Creature) -> bool:
     for index, aim_feature in enumerate(aim.features):
         if aim_feature.been_attack(hunter):
             disabled[index] = True
+            continue
 
         flag_list = []
         hunter.features.sort(key=lambda card: card.index)
         for hunter_feature in hunter.features:
             flag_list.append(hunter_feature > aim_feature)
 
-        if not any(flag_list):
+        if any(flag_list):
             disabled[index] = True
             
     if hunter.size > aim.size and not (False in disabled):
@@ -22,14 +23,15 @@ def can_attack(hunter: Creature, aim: Creature) -> bool:
 def easy_debug(
     population_tuple: Tuple[int, int],
     size_tuple: Tuple[int, int],
-    hunter_features: Tuple[str, ...],
-    aim_features: Tuple[str, ...]
+    hunter_features: Tuple[str],
+    aim_features: Tuple[str]
 ) -> bool:
     player = Player(id_=1)
     hunter = Creature(player=player)
     aim = Creature(player=player)
     
     player.creatures.extend([hunter, aim])
+    player.cards.extend([Card(player=player)] * 3)
     
     for feature in hunter_features:
         feature = eval(feature + '(player=player)')
@@ -50,6 +52,6 @@ if __name__ == '__main__':
     print(easy_debug(
         (1, 1),
         (3, 2),
-        ('Carnivorous', 'GroupHunting'),
-        ('AdiposeTissue', )
+        ('Carnivorous', 'Intelligence'),
+        ('HardShell', )
     ))
