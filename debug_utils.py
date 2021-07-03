@@ -2,6 +2,11 @@ from cards import *
 
 def can_attack(hunter: Creature, aim: Creature) -> bool:
     disabled = [False] * len(aim.features)
+    hunter_size = hunter.size
+    
+    for feature in hunter.features:
+        feature.on_attack(aim)
+    
     for index, aim_feature in enumerate(aim.features):
         if aim_feature.been_attack(hunter):
             disabled[index] = True
@@ -16,6 +21,7 @@ def can_attack(hunter: Creature, aim: Creature) -> bool:
             disabled[index] = True
             
     if hunter.size > aim.size and not (False in disabled):
+        hunter.size = hunter_size
         return True
 
     return False
@@ -23,7 +29,7 @@ def can_attack(hunter: Creature, aim: Creature) -> bool:
 def easy_debug(
     population_tuple: Tuple[int, int],
     size_tuple: Tuple[int, int],
-    hunter_features: Tuple[str],
+    hunter_features: Tuple[str, ...],
     aim_features: Tuple[str]
 ) -> bool:
     player = Player(id_=1)
@@ -51,7 +57,7 @@ def easy_debug(
 if __name__ == '__main__':
     print(easy_debug(
         (1, 1),
-        (3, 2),
-        ('Carnivorous', 'Intelligence'),
-        ('HardShell', )
+        (1, 1),
+        ('Carnivorous', 'GroupHunting'),
+        tuple()
     ))

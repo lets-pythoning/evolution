@@ -14,7 +14,7 @@ def play():
     
     check_winner()
 
-def parser(string: str, clear=True):
+def parser(string: str, clear: bool = True):
     words = string.split()
     
     length = 0

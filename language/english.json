@@ -1,0 +1,76 @@
+{
+    "base": {
+        "player_as_string": "Player ({})",
+        "creature_as_string": "Creature ({})"
+    },
+    "error_message": {
+        "features_more_than_three": "Features more three!",
+        "same_feature": "Same feature {} has been placed!",
+        "creature_dead": "{}'s {} dead.",
+        "card_index_overflow": "Card index out of range, please try again",
+        "player_index_overflow": "Player index out of range, please try again.",
+        "index_not_interger": "Index is not an interger, please try again.",
+        "wrong_file_warning": "This is game_utils.py, not the entrance of the game. Please run enter.py instead."
+    },
+    "game_util": {
+        "which_card": "Which card do you want to choose?\n> ",
+        "which_creature": "Which creature do you want to choose?\n> ",
+        "fresh": {
+            "creature_intro": "  - {}: {} {} food {} population {} size",
+            "player_cards": "  - cards: {}",
+            "player_point": "  - points: {}",
+            "water_hole": "- water hole: {}",
+            "deck_num": "- deck: {}"
+        },
+        "get_food_card": "{}, please choose a food card.",
+        "attack": {
+            "ask_player_index": "Which player do you want to attack?\n> ",
+            "aim_player_hint": "You want to attack {}.",
+            "succeeded": "Attacked successfully!",
+            "failed": "Sorry, attack failed."
+        },
+        "not_full_hint": "You have undereaten creatures, please choose one.",
+        "card": {
+            "show_card": "You have card: {}",
+            "creature_features": "{} has feature: {}",
+            "stop": "You have no enough card, please stop.",
+            "gain": "What do you want to gain?\n> ",
+            "ask_for_side": "Which side?\n> ",
+            "what": "What did you say?",
+            "no_feature": "Your creature has no feature!",
+            "private_move": "{}'s private move, others leave the screen (press enter to continue). ",
+            "what_to_do": "What do you want to do?\n> "
+        },
+        "eat": {
+            "no_water_hole": "There is no food in the water hole!",
+            "eat_or_not": "{}, do you want to eat?\n> ",
+            "all_full": "{}, all of your creatures are full."
+        }
+    },
+    "card": {
+        "carnivores": "Carnivores",
+        "intelligence": {
+            "name": "Intelligence",
+            "ask_message": "The aim has {}, do you want to use Intelligence?\n>",
+            "warn_message": "Intelligence used, our players please leave the screen.",
+            "ask_for_card": "Which card do you want to discard?\n> ",
+            "no_card": "You have no card!"
+        },
+        "group_hunting": "Group Hunting",
+        "ambush": "Ambush",
+        "warning_signal": "Warning Signal",
+        "cooperation": "Cooperation",
+        "adipose_tissue": {
+            "name": "Adipose Tissue",
+            "as_str": "{} {} food"
+        },
+        "long_neck": "Long Neck",
+        "symbiosis": "Symbiosis",
+        "hard_shell": "Hard Shell",
+        "horn": "Horn",
+        "cave_dwelling": "Cave Dwelling",
+        "climb": "Climb",
+        "foraging": "Foraging",
+        "cluster_defense": "Cluster Defense"
+    }
+}

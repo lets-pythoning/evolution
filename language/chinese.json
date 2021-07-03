@@ -1,0 +1,76 @@
+{
+    "base": {
+        "player_as_string": "玩家 {} ",
+        "creature_as_string": "物种 {} "
+    },
+    "error_message": {
+        "features_more_than_three": "特性多于三个!",
+        "same_feature": "同样的特性{}被放置!",
+        "creature_dead": "{}的{}死去了.",
+        "card_index_overflow": "卡牌的索引超出了范围, 请重试.",
+        "player_index_overflow": "玩家的索引超出了范围, 请重试.",
+        "index_not_interger": "索引不是一个正整数, 请重试.",
+        "wrong_file_warning": "这是game_utils.py, 不是游戏的入口, 请运行enter.py"
+    },
+    "game_util": {
+        "which_card": "你要选择哪一张牌?\n> ",
+        "which_creature": "你要选择哪一个物种?\n> ",
+        "fresh": {
+            "creature_intro": "  - {}: {} {} 食物 {} 种群规模 {} 体型",
+            "player_cards": "  - 手牌数量: {}",
+            "player_point": "  - 玩家点数: {}",
+            "water_hole": "- 水塘食物数量: {}",
+            "deck_num": "- 牌堆剩余牌数: {}"
+        },
+        "get_food_card": "{}, 请选择一张食物牌.",
+        "attack":{
+            "ask_player_index": "你要攻击哪个玩家?\n> ",
+            "aim_player_hint": "你想要攻击{}.",
+            "succeeded": "攻击成功!",
+            "failed": "对不起, 攻击失败了."
+        },
+        "not_full_hint": "你还有不止一个物种没吃饱, 请选择一个.",
+        "card": {
+            "show_card": "目前你的手牌有: {}",
+            "creature_features": "{}有特性: {}",
+            "stop": "你的牌不够了, 请停止.",
+            "gain": "你想获得什么作为回报?\n> ",
+            "ask_for_side": "你想在哪一边增加物种?\n> ",
+            "what": "你说什么?",
+            "no_feature": "你的物种没有特性!",
+            "private_move": "{}的私人回合, 其他玩家请离开屏幕(按回车继续). ",
+            "what_to_do": "你想要做什么?\n> "
+        },
+        "eat": {
+            "no_water_hole": "水塘中已经没有食物了!",
+            "eat_or_not": "{}, 你要让你的物种进食吗?\n> ",
+            "all_full": "{}, 你所有的物种都已经饱腹."
+        }
+    },
+    "card": {
+        "carnivores": "食肉",
+        "intelligence": {
+            "name": "智力",
+            "ask_message": "目标物种有{}, 你要使用智力吗?\n>",
+            "warn_message": "智力已被使用, 请其他玩家离开屏幕.",
+            "ask_for_card": "你要弃掉哪一张牌?\n> ",
+            "no_card": "你没有手牌!"
+        },
+        "group_hunting": "集群狩猎",
+        "ambush": "伏击",
+        "warning_signal": "警报信号",
+        "cooperation": "合作",
+        "adipose_tissue": {
+            "name": "脂肪组织",
+            "as_str": "{} {} 食物"
+        },
+        "long_neck": "长颈",
+        "symbiosis": "共生",
+        "hard_shell": "硬壳",
+        "horn": "角",
+        "cave_dwelling": "穴居",
+        "climb": "攀爬",
+        "foraging": "觅食",
+        "cluster_defense": "集群防御"
+    }
+}

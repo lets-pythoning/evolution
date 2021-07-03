@@ -1,5 +1,7 @@
 from cards import *
 
+GAME = LD['game_util']
+
 # ---------------- #
 #  Lower Function  #
 # ---------------- #
@@ -21,7 +23,7 @@ def _get_card(cards: list) -> Card:
     print([str(card) for card in cards], '\n')
 
     while True:
-        index = input('Input card index: ')
+        index = input(GAME['which_card'])
         try:
             index = int(index)
             card = cards[index - 1]
@@ -29,13 +31,17 @@ def _get_card(cards: list) -> Card:
             return card
 
         except IndexError:
-            print('Index out of range, choose again.')
+            print(ERROR['card_index_overflow'])
         except ValueError:
-            print('Index not an integer, choose again.')
+            print(ERROR['index_not_interger'])
 
 def _get_creature(creatures: list) -> Creature:
+    if len(creatures) == 1:
+        fresh()
+        return creatures[0]
+
     while True:
-        index = input('Which creature?\n> ')
+        index = input(GAME['which_creature'])
         try:
             index = int(index)
             creature = creatures[index - 1]
@@ -43,9 +49,9 @@ def _get_creature(creatures: list) -> Creature:
             break
 
         except IndexError:
-            print('Creature index out of range. Try again.')
+            print(ERROR['creature_index_overflow'])
         except ValueError:
-            print('Try to input an integer. Please try again.')
+            print(ERROR['index_not_interger'])
     
     return creature
 
@@ -55,19 +61,45 @@ def fresh():
     for player in players:
         print(str(player))
         for creature in player.creatures:
-            print(
-                f' - {str(creature)}: {[str(feature) for feature in creature.features]} {creature.food_num} food {creature.population} population {creature.size} size')
+            features = [str(feature) for feature in creature.features]
+            print(GAME['fresh']['creature_intro'].format(str(creature), features, creature.food_num, creature.population, creature.size))
 
-        print(f' - cards: {len(player.cards)}')
-        print(f' - point: {player.point}')
+        print(GAME['fresh']['player_cards'].format(len(player.cards)))
+        print(GAME['fresh']['player_point'].format(player.point))
 
-    print(f'water hole: {water_hole_control()}')
-    print(f'deck: {len(deck)}\n')
+    print()
+
+    print(GAME['fresh']['water_hole'].format(water_hole_control()))
+    print(GAME['fresh']['deck_num'].format(len(deck)))
     
+    print()
+
+def _choose_return(player: Player, creature: Creature):
+    while True:
+        choice = input(GAME['card']['gain']).lower()
+        if ('population'.startswith(choice) or choice in ('+p', '++')) and creature.population != 6:
+            creature.population += 1
+            break
+
+        if ('size'.startswith(choice) or choice in ('+s', '++')) and creature.size != 6:
+            creature.size += 1
+            break
+
+        if choice in ('add creature', 'ac', '+c', '++', 'add', 'a', 'ad'):
+            position = input(GAME['card']['ask_for_side'])
+            if 'left'.startswith(position):
+                player.creatures.insert(0, Creature(player=player))
+                break
+
+            player.creatures.append(Creature(player=player))
+            break
+
+        print(GAME['card']['what'])
+
 def _get_food_card() -> list:
     cards = []
     for player in players:
-        print(f'{str(player)}, choose a food card.')
+        print(GAME['get_food_card'].format(str(player)))
         
         card = _get_card(player.cards)
         cards.append(card)
@@ -79,6 +111,11 @@ def _get_food_card() -> list:
 
 def _can_attack(hunter: Creature, aim: Creature) -> bool:
     disabled = [False] * len(aim.features)
+    hunter_size = hunter.size
+
+    for feature in hunter.features:
+        feature.on_attack(aim)
+
     for index, aim_feature in enumerate(aim.features):
         if aim_feature.been_attack(hunter):
             disabled[index] = True
@@ -93,6 +130,7 @@ def _can_attack(hunter: Creature, aim: Creature) -> bool:
             disabled[index] = True
 
     if hunter.size > aim.size and not (False in disabled):
+        hunter.size = hunter_size
         return True
 
     return False
@@ -126,18 +164,18 @@ def next_round():
 def attack(hunter: Creature):
     while True:
         fresh()
-        player_index = input('Input the player\'s index you\'d want to attack:\n> ')
+        player_index = input(GAME['attack']['ask_player_index'])
         try:
             player = players[int(player_index) - 1]
             break
         
         except IndexError:
-            print('Player index out of range. Try again.')
+            print(ERROR['player_index_overflow'])
         except ValueError:
-            print('Try to input an integer. Please try again.')
+            print(ERROR['index_not_interger'])
 
     fresh()
-    print(f'You want to attack {str(player)}.')
+    print(GAME['attack']['aim_player_hint'].format(str(player)))
         
     creature = _get_creature(player.creatures)
     
@@ -145,16 +183,16 @@ def attack(hunter: Creature):
         creature.population -= 1
         hunter.eat(creature.size)
         
-        print('Attack succeed.')
+        print(GAME['attack']['succeeded'])
         sleep(1)
     
     else:
-        print('Sorry, you can\'t attack it.')
+        print(GAME['attack']['failed'])
         sleep(1)
 
 def eat(player: Player):
     fresh()
-    print(f'{str(player)}, you have got creature that not full.')
+    print(GAME['not_full_hint'].format(str(player)))
 
     creature_not_full = list(filter(lambda creature: not creature.is_full, player.creatures))
     creature = _get_creature(creature_not_full)
@@ -162,6 +200,12 @@ def eat(player: Player):
     if creature.is_carnivorous:
         attack(creature)
     else:
+        if water_hole_control() == 0:
+            print(GAME['eat']['no_water_hole'])
+            sleep(1)
+            
+            return
+
         creature.eat(1)
 
 def is_deck() -> bool:
@@ -191,12 +235,15 @@ def split_cards():
 
 def add_card(player: Player):
     fresh()
-    print(f'Your hand cards: {[str(card) for card in player.cards]}')
+    print(GAME['card']['show_card'].format([str(card) for card in player.cards]))
     
     if len(player.cards) > 1:
         creature = _get_creature(player.creatures)
         
-        print(f'{str(creature)}\'s features: {[str(feature) for feature in creature.hidden_features + creature.features]}')
+        features = creature.hidden_features + creature.features
+        features = [str(feature) for feature in features]
+        
+        print(GAME['card']['creature_features'].format(str(creature), features))
         
         card = _get_card(player.cards)
         try:
@@ -208,7 +255,7 @@ def add_card(player: Player):
             sleep(2)
     
     else:
-        print('Sorry, you have to stop.')
+        print(GAME['card']['stop'])
         sleep(2)
 
 def delete_card(player: Player):
@@ -216,46 +263,28 @@ def delete_card(player: Player):
 
     creature = _get_creature(player.creatures)
     if creature.features:
-        print(f'{str(creature)}\'s features: {[str(feature) for feature in creature.features]}')
+        features = [str(feature) for feature in creature.features]
+        print(GAME['card']['creature_features'].format(str(creature), features))
         
         card = _get_card(creature.features)
         creature.delete_feature(card)
         
-        while True:
-            choice = input('What do you want to gain?\n> ').lower()
-            if ('population'.startswith(choice) or choice in ('+p', '++')) and creature.population != 6:
-                creature.population += 1
-                break
-                
-            if ('size'.startswith(choice) or choice in ('+s', '++')) and creature.size != 6:
-                creature.size += 1
-                break
-            
-            if choice in ('add creature', 'ac', '+c', '++', 'add', 'a', 'ad'):
-                position = input('Which side?\n> ')
-                if 'left'.startswith(position):
-                    player.creatures.insert(0, Creature(player=player))
-                    break
-
-                player.creatures.append(Creature(player=player))
-                break
-                
-            print('What?')
+        _choose_return(player, creature)
     
     else:
-        print('Sorry, your creature has no feature.')
+        print(GAME['card']['no_feature'])
         sleep(2)
 
 def private_move():
     fresh()
     
     for player in players:
-        input(f'{str(player)}\'s private move.')
+        input(GAME['card']['private_move'].format(str(player)))
         
         answer = ''
         while True:
             fresh()
-            answer = input('What do you want to do?\n> ').lower()
+            answer = input(GAME['card']['what_to_do']).lower()
             
             if answer in ('del', 'd', 'delete', '-'):
                 delete_card(player)
@@ -271,20 +300,14 @@ def eat_together() -> bool:
     for player in players:
         fresh()
         
-        if water_hole_control() == 0:
-            print('Water hole is empty!')
-            sleep(1)
-            
-            break
-        
         if any(not creature.is_full for creature in player.creatures):
-            choice = input(f'{str(player)}, do you want to eat?\n> ').lower()
+            choice = input(GAME['eat']['eat_or_not'].format(str(player))).lower()
             if choice in ('yes', 'y'):
                 result = True
                 eat(player)
         
         else:
-            print(f'{str(player)}, all of your creature are full.')
+            print(GAME['eat']['all_full'].format(str(player)))
             sleep(1)
             
     return result
@@ -300,7 +323,4 @@ def check_winner():
     print('# ' + '-' * 10 + ' #')
 
 if __name__ == '__main__':
-    print('''
-This is game_utils.py, not the entrance of Evolution.
-Run file enter.py instead.
-        ''')
+    print(ERROR['wrong_file_warning'])

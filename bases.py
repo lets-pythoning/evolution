@@ -1,17 +1,21 @@
-from json import load
 from os import system
 from random import randint, shuffle
 from sys import argv
 from time import sleep
-from typing import Any, List, Tuple, Union
+from typing import Any, Callable, List, Tuple, Union
 
 from constants import *
 from errors import Dead, OwnerError
 
+LD = LANGUAGE_DICT
+ERROR = LD['error_message']
+CARD = LD['card']
+BASE = LD['base']
+
 water_hole = 0
 
-def isinstance_decorator(type_: Any) -> object:
-    def call_function(function: object) -> object:
+def isinstance_decorator(type_: Any) -> Callable:
+    def call_function(function: Callable) -> Callable:
         def wrapper(obj: Any):
             if isinstance(obj, type_):
                 function(obj)
@@ -67,6 +71,7 @@ class Card(object):
     def been_attack(self, hunter) -> bool:
         return True
 
+    def on_attack(self, aim): ...
     def eat(self, food_num: int): ...
     def next_round(self): ...
     def announce(self): ...
@@ -83,7 +88,7 @@ class Player(object):
         self.cards = []
 
     def __str__(self) -> str:
-        return f'Player ({self.id_})'
+        return BASE['player_as_string'].format(self.id_)
 
     def __repr__(self) -> str:
         return f'<Player id_={self.id_} point={self.point}>'
@@ -131,7 +136,7 @@ class Creature(object):
         self.food_num = 0
     
     def __str__(self) -> str:
-        return f'Creature ({self.father.creatures.index(self) + 1})'
+        return BASE['creature_as_string'].format(self.father.creatures.index(self) + 1)
     
     def __repr__(self) -> str:
         return f'<Creature population={self.population} size={self.size} father={repr(self.father)} is_carnivorous={self.is_carnivorous} food_num={self.food_num}>'
@@ -148,10 +153,10 @@ class Creature(object):
                     self.hidden_features.append(new_feature)
                 
                 else:
-                    raise IndexError('Features more than 3!')
+                    raise IndexError(ERROR['features_more_than_three'])
             
             else:
-                raise ValueError(f'Same feature {str(new_feature)} been placed!')
+                raise ValueError(ERROR['same_feature'].format(str(new_feature)))
             
         else:
             raise OwnerError('Not owned card been placed!')
@@ -179,11 +184,11 @@ class Creature(object):
         self.food_num = 0
         self.is_full = False
         if self.population <= 0:
-            raise Dead(self.__str__() + ' dead.')
-            
+            raise Dead(ERROR['creature_dead'].format(str(self.father), str(self)))
+
         for feature in self.features:
             feature.next_round()
-    
+
     def eat(self, food_num: int):
         # 先累加食物, 超出也没关系, 如果没有脂肪组织, 后面会自动变成种群数量.
         
@@ -197,7 +202,6 @@ class Creature(object):
             water_hole -= food_num
         
         else:
-            print('Water hole isn\'t affordable.')
             return
 
         self.features.sort(key=lambda feature: feature.index)
@@ -215,7 +219,7 @@ class Creature(object):
             water_hole += redundance
             self.food_num = self.population
             
-            if 'AdiposeTissue' in map(lambda feature: feature.name, self.features):
+            if CARD['adipose_tissue']['name'] in map(lambda feature: feature.name, self.features):
                 return
 
             self.is_full = True

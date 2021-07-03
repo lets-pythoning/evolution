@@ -4,7 +4,7 @@ class Carnivorous(Card):
 
     def __init__(self, player: Player, point=(0, 5), index=1):
         super().__init__(player, point, index)
-        self.name = 'Carnivorous'
+        self.name = CARD['carnivores']
 
     def on_place(self, creature: Creature):
         super().on_place(creature=creature)
@@ -17,32 +17,32 @@ class Intelligence(Card):
 
     def __init__(self, player: Player, point=(-1, 3), index=4):
         super().__init__(player, point, index)
-        self.name = 'Intelligence'
+        self.name = CARD['intelligence']['name']
 
     def __gt__(self, other: Card) -> bool:
         if not self.father.is_carnivorous:
             return False
 
         if self.root.cards != []:
-            choice = input(f'The aim has {str(other)}, do you want to use Intelligence? ').lower()
+            choice = input(CARD['intelligence']['ask_message'].format(str(other))).lower()
             if choice in ('yes', 'y'):
-                input('Intelligence used, keepout! ')
+                input(CARD['intelligence']['warn_message'])
                 
                 cards = self.root.cards
                 print([str(card) for card in cards], '\n')
 
                 while True:
-                    index = input('Input card index: ')
+                    index = input(CARD['Intelligence']['ask_for_card'])
                     try:
                         index = int(index)
                         card = cards[index - 1]
                         break
 
                     except IndexError:
-                        print('Index out of range, choose again.')
+                        print(ERROR['card_index_overflow'])
 
                     except ValueError:
-                        print('Index not an integer, choose again.')
+                        print(ERROR['index_not_interger'])
 
                 self.root.cards.remove(card)
 
@@ -50,27 +50,26 @@ class Intelligence(Card):
 
             return False
 
-        print('No card!')
+        print(CARD['intelligence']['no_card'])
         return False
 
 class GroupHunting(Card):
 
     def __init__(self, player: Player, point=(-3, 2), index=1):
         super().__init__(player, point, index)
-        self.name = 'GroupHunting'
+        self.name = CARD['group_hunting']
 
-    def __gt__(self, other: Card) -> bool:
+    def on_attack(self, aim: Creature):
         self.father.size += self.father.population
-        return False
     
 class Ambush(Card):
     
     def __init__(self, player: Player, point=(-3, 1), index=1):
         super().__init__(player, point, index)
-        self.name = 'Ambush'
+        self.name = CARD['ambush']
     
     def __gt__(self, other: Card) -> bool:
-        if other.__class__.__name__ == 'WarningSignal':
+        if other.__class__.__name__ == CARD['warning_signal']:
             return True
         
         return False
@@ -79,7 +78,7 @@ class Cooperation(Card):
 
     def __init__(self, player: Player, point=(2, 5), index=2):
         super().__init__(player, point, index)
-        self.name = 'Cooperation'
+        self.name = CARD['cooperation']
 
     def eat(self, food_num: int):
         right_neighbor = self.root.get_neighbors(self.father)['right']
@@ -93,13 +92,13 @@ class AdiposeTissue(Card):
 
     def __init__(self, player: Player, point=(0, 4), index=4):
         super().__init__(player, point, index)
-        self.name = 'AdiposeTissue'
+        self.name = CARD['adipose_tissue']['name']
         self.extra_food = 0
 
     def __str__(self) -> str:
-        return super().__str__() + f' {self.extra_food} food'
+        return CARD['adipose_tissue']['as_str'].format(super().__str__(), self.extra_food)
 
-    def eat(self, food_num: int) -> int:
+    def eat(self, food_num: int):
         if self.father.food_num > self.father.population:
             redundance = self.father.food_num - self.father.population
             self.extra_food += redundance
@@ -115,7 +114,7 @@ class LongNeck(Card):
     
     def __init__(self, player: Player, point=(5, 9), index=1):
         super().__init__(player, point, index)
-        self.name = 'LongNeck'
+        self.name = CARD['long_neck']
     
     def announce(self):
         if not self.father.is_carnivorous:
@@ -127,7 +126,7 @@ class Symbiosis(Card):
     
     def __init__(self, player: Player, point=(2, 8), index=2):
         super().__init__(player, point, index)
-        self.name = 'Symbiosis'
+        self.name = CARD['symbiosis']
     
     def been_attack(self, hunter: Creature) -> bool:
         right_neighbor = self.root.get_neighbors(self.father)['right']
@@ -140,7 +139,7 @@ class HardShell(Card):
     
     def __init__(self, player: Player, point=(-1, 8), index=2):
         super().__init__(player, point, index)
-        self.name = 'HardShell'
+        self.name = CARD['hard_shell']
     
     def been_attack(self, hunter: Creature) -> bool:
         if hunter.size > self.father.size + 4:
@@ -152,7 +151,7 @@ class Horn(Card):
     
     def __init__(self, player: Player, point=(1, 5), index=1):
         super().__init__(player, point, index)
-        self.name = 'Horn'
+        self.name = CARD['horn']
     
     def been_attack(self, hunter: Creature) -> bool:
         hunter.population -= 1
@@ -162,7 +161,7 @@ class CaveDwelling(Card):
     
     def __init__(self, player: Player, point=(1, 5), index=1):
         super().__init__(player, point, index)
-        self.name = 'CaveDwelling'
+        self.name = CARD['cave_dwelling']
     
     def been_attack(self, hunter: Creature) -> bool:
         if self.father.food_num < self.father.population:
@@ -174,7 +173,7 @@ class Climb(Card):
     
     def __init__(self, player: Player, point=(1, 4), index=1):
         super().__init__(player, point, index)
-        self.name = 'Climb'
+        self.name = CARD['climb']
 
     def been_attack(self, hunter: Creature) -> bool:
         return False
@@ -192,7 +191,7 @@ class WarningSignal(Card):
     
     def __init__(self, player: Player, point=None, index=1):
         super().__init__(player, point, index)
-        self.name = 'WarningSignal'
+        self.name = CARD['warning_signal']
     
     def been_attack(self, hunter: Creature) -> bool:
         return False
@@ -201,7 +200,7 @@ class Foraging(Card):
     
     def __init__(self, player: Player, point=(2, 7), index=3):
         super().__init__(player, point, index)
-        self.name = 'Foraging'
+        self.name = CARD['foraging']
     
     def eat(self, food_num: int):
         if not self.father.is_carnivorous:
@@ -212,7 +211,7 @@ class ClusterDefense(Card):
     
     def __init__(self, player: Player, point=(4, 7), index=1):
         super().__init__(player, point, index)
-        self.name = 'ClusterDefense'
+        self.name = CARD['cluster_defense']
     
     def been_attack(self, hunter: Creature) -> bool:
         if hunter.population > self.father.population:
